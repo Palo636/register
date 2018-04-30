@@ -20,15 +20,6 @@ public class ConsoleUI {
      */
     private BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-    /**
-     * Menu options.
-     */
-    private enum Option {
-        PRINT, ADD, UPDATE, REMOVE, FIND, EXIT
-    }
-
-    ;
-
     public ConsoleUI(Register register) {
         this.register = register;
     }
@@ -60,7 +51,6 @@ public class ConsoleUI {
     private String readLine() {
         //In JDK 6.0 and above Console class can be used
         //return System.console().readLine();
-
         try {
             return input.readLine();
         } catch (IOException e) {
@@ -76,11 +66,18 @@ public class ConsoleUI {
         System.out.println("-----------------------------------------------");
 
         int selection = -1;
-        do {
-            System.out.println("Option: ");
-            selection = Integer.parseInt(readLine());
-        } while (selection <= 0 || selection > Option.values().length);
+        try {
+            do {
+                System.out.println("Option: ");
+                selection = Integer.parseInt(readLine());
+            } while (selection <= 0 || selection > Option.values().length);
 
+
+        } catch (NumberFormatException e) {
+            e.getMessage();
+            System.err.println("WRONG OPTION, TRY IT AGAIN");
+            run();
+        }
         return Option.values()[selection - 1];
     }
 
@@ -98,26 +95,35 @@ public class ConsoleUI {
         String name = readLine();
         System.out.println("Enter Phone Number: ");
         String phoneNumber = readLine();
-        for (int i = 0; i < register.getCount(); i++) {
-            if (name.equals(register.getPerson(i).getName()) || phoneNumber.equals(register.getPerson(i).getPhoneNumber())) {
-                System.out.println("duplicited name or phone number ");
-                addToRegister();
-            }
+        try {
+            register.addPerson(new Person(name, phoneNumber));
+        } catch (RuntimeException e){
+            System.err.println("wrong insert " + e);
+            addToRegister();
         }
-        register.addPerson(new Person(name, phoneNumber));
     }
-
     //TODO: Implement the method updateRegister
     private void updateRegister() {
         System.out.println("Enter index: ");
         int index = Integer.parseInt(readLine());
-        Person person = register.getPerson(index - 1);
-        System.out.println("Enter new name: ");
-        String newName = readLine();
-        System.out.println("Enter new phone number: ");
-        String newNumber = readLine();
-        person.setName(newName);
-        person.setPhoneNumber(newNumber);
+        try {
+            Person person = register.getPerson(index - 1);
+            System.out.println("Enter new name: ");
+            String newName = readLine();
+            System.out.println("Enter new phone number: ");
+            String newNumber = readLine();
+            person.setName(newName);
+            person.setPhoneNumber(newNumber);
+        } catch (NullPointerException e) {
+            System.err.println("WRONG INDEX");
+            updateRegister();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.err.println("wrong index");
+            updateRegister();
+        } catch (RuntimeException e){
+            System.err.println("wrong insert " + e);
+            updateRegister();
+        }
 
     }
 
@@ -133,7 +139,7 @@ public class ConsoleUI {
                 System.out.println("Enter name: ");
                 finding = readLine();
                 printedPerson = register.findPersonByName(finding);
-                if(printedPerson==null){
+                if (printedPerson == null) {
                     System.out.println("not found");
                     findInRegister();
                 }
@@ -143,20 +149,36 @@ public class ConsoleUI {
                 System.out.println("Enter number: ");
                 finding = readLine();
                 printedPerson = register.findPersonByName(finding);
-                if(printedPerson==null){
+                if (printedPerson == null) {
                     System.out.println("not found");
                     findInRegister();
                 }
                 System.out.println(printedPerson.toString());
                 break;
+            default:
+                System.out.println("wrong input");
+                findInRegister();
         }
     }
 
     private void removeFromRegister() {
         System.out.println("Enter index: ");
         int index = Integer.parseInt(readLine());
-        Person person = register.getPerson(index - 1);
-        register.removePerson(person);
+        try {
+            Person person = register.getPerson(index - 1);
+            register.removePerson(person);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.err.println("wrong index");
+            removeFromRegister();
+        }
+
+    }
+
+    /**
+     * Menu options.
+     */
+    private enum Option {
+        PRINT, ADD, UPDATE, REMOVE, FIND, EXIT
     }
 
 }
