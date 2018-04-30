@@ -60,7 +60,9 @@ public class ArrayRegister implements Register {
      *
      * @param person person to append to this register
      */
-    @Override
+
+    //todo opravit to cez findpersonbyname/phonenumber
+   /** @Override
     public void addPerson(Person person) {
         int n = 0;
         for (int i = 0; i < this.getCount(); i++) {
@@ -79,6 +81,18 @@ public class ArrayRegister implements Register {
         if (n == 0) {
             persons[count] = person;
             count++;
+        }
+    }*/
+
+   @Override
+    public void addPerson(Person person){
+        if(findPersonByName(person.getName())==null){
+            if (findPersonByPhoneNumber(person.getPhoneNumber())==null){
+                persons[count] = person;
+                count++;
+            }
+        }else{
+            System.err.println("person is already in register");
         }
     }
 
@@ -137,5 +151,6 @@ public class ArrayRegister implements Register {
             persons[i] = persons[i + 1];
         }
         count--;
+        System.out.println("person is Removed");
     }
 }
